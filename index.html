@@ -1,161 +1,899 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8">
-<title>Szkolna Gra Matematyczna</title>
-<style>
-body { font-family: Arial; text-align: center; }
-input, select { font-size: 18px; margin: 5px; }
-button { font-size: 18px; }
-label { margin-right: 10px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧮 Gra Matematyczna</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        /* Ekran startowy */
+        .start-screen h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .class-select {
+            margin-bottom: 20px;
+        }
+
+        .class-select label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .class-select select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .operations {
+            margin-bottom: 20px;
+        }
+
+        .operations h3 {
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .checkbox-item:hover {
+            background: #e9ecef;
+        }
+
+        .checkbox-item input {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .name-input {
+            margin-bottom: 20px;
+        }
+
+        .name-input input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .name-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-start:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-start:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Ekran gry */
+        .game-screen {
+            display: none;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-value.time {
+            color: #667eea;
+        }
+
+        .stat-value.points {
+            color: #28a745;
+        }
+
+        .stat-value.points.negative {
+            color: #dc3545;
+        }
+
+        .question-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .question {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .operation-type {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .answer-section {
+            margin-bottom: 20px;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 15px;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-answer {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-answer:hover {
+            background: #218838;
+        }
+
+        .feedback {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .feedback.wrong {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        /* Ekran końcowy */
+        .end-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .end-title {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .end-reason {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .final-score {
+            font-size: 4em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .stats-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stats-summary div {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+
+        /* Ranking */
+        .ranking {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .ranking h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .ranking-item.gold {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4a 100%);
+        }
+
+        .ranking-item.silver {
+            background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+        }
+
+        .ranking-item.bronze {
+            background: linear-gradient(135deg, #cd7f32 0%, #daa06d 100%);
+        }
+
+        .medal {
+            font-size: 1.5em;
+            margin-right: 10px;
+            min-width: 30px;
+        }
+
+        .ranking-info {
+            flex: 1;
+        }
+
+        .ranking-name {
+            font-weight: bold;
+        }
+
+        .ranking-details {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .ranking-item.gold .ranking-details,
+        .ranking-item.bronze .ranking-details {
+            color: #333;
+        }
+
+        .ranking-points {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-top: 15px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #ffc107, #dc3545);
+            transition: width 1s linear;
+        }
+
+        .streak {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .streak-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: linear-gradient(135deg, #ffc107, #ff8c00);
+            color: white;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.3s ease-in-out;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>🧮 Gra Matematyczna</h1>
 
-<h1>📚 Szkolna Gra Matematyczna (1–8)</h1>
+        <!-- Ekran startowy -->
+        <div class="start-screen" id="startScreen">
+            <div class="name-input">
+                <label for="playerName">👤 Twoje imię:</label>
+                <input type="text" id="playerName" placeholder="Wpisz swoje imię..." maxlength="20">
+            </div>
 
-<input id="player" placeholder="Imię ucznia">
+            <div class="class-select">
+                <label for="classLevel">📚 Wybierz klasę:</label>
+                <select id="classLevel">
+                    <option value="1">Klasa 1</option>
+                    <option value="2">Klasa 2</option>
+                    <option value="3">Klasa 3</option>
+                    <option value="4" selected>Klasa 4</option>
+                    <option value="5">Klasa 5</option>
+                    <option value="6">Klasa 6</option>
+                    <option value="7">Klasa 7</option>
+                    <option value="8">Klasa 8</option>
+                </select>
+            </div>
 
-<br><br>
+            <div class="operations">
+                <h3>🎯 Wybierz działania:</h3>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="addition" checked>
+                        <label for="addition">➕ Dodawanie</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="subtraction" checked>
+                        <label for="subtraction">➖ Odejmowanie</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="multiplication">
+                        <label for="multiplication">✖️ Mnożenie</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="division">
+                        <label for="division">➗ Dzielenie</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="fractions">
+                        <label for="fractions">🧮 Ułamki</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="powers">
+                        <label for="powers">🔺 Potęgi</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="roots">
+                        <label for="roots">√ Pierwiastki</label>
+                    </div>
+                </div>
+            </div>
 
-<select id="level">
-<option value="easy">Klasy 1–3</option>
-<option value="medium">Klasy 4–6</option>
-<option value="hard">Klasy 7–8</option>
-</select>
+            <button class="btn btn-start" id="startBtn" onclick="startGame()">
+                🚀 Rozpocznij grę!
+            </button>
+        </div>
 
-<h3>✔️ Wybierz działania</h3>
-<label><input type="checkbox" value="add" checked> ➕</label>
-<label><input type="checkbox" value="sub"> ➖</label>
-<label><input type="checkbox" value="mul"> ✖️</label>
-<label><input type="checkbox" value="div"> ➗</label>
-<label><input type="checkbox" value="frac"> 🧮</label>
-<label><input type="checkbox" value="pow"> 🔺</label>
-<label><input type="checkbox" value="sqrt"> √</label>
+        <!-- Ekran gry -->
+        <div class="game-screen" id="gameScreen">
+            <div class="game-header">
+                <div class="stat">
+                    <div class="stat-label">⏰ Czas</div>
+                    <div class="stat-value time" id="timer">3:00</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">⭐ Punkty</div>
+                    <div class="stat-value points" id="points">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">📊 Seria</div>
+                    <div class="stat-value" id="streak">0</div>
+                </div>
+            </div>
 
-<h2 id="question">Kliknij START</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 100%"></div>
+            </div>
 
-<input id="answer">
+            <div class="streak" id="streakBadge" style="display: none; margin-top: 15px;">
+                <span class="streak-badge">🔥 Seria: <span id="streakCount">0</span></span>
+            </div>
 
-<br><br>
-<button onclick="startGame()">START</button>
+            <div class="question-box">
+                <div class="question" id="question">2 + 2 = ?</div>
+                <div class="operation-type" id="operationType">Dodawanie</div>
+            </div>
 
-<p>⏱️ Czas: <span id="time">180</span> s</p>
-<p>⭐ Punkty: <span id="score">0</span></p>
+            <div class="feedback" id="feedback"></div>
 
-<h3>🏆 TOP 3</h3>
-<ol id="records"></ol>
+            <div class="answer-section">
+                <input type="text" class="answer-input" id="answerInput" placeholder="Twoja odpowiedź..." autocomplete="off">
+                <button class="btn btn-answer" onclick="checkAnswer()">
+                    ✅ Sprawdź
+                </button>
+            </div>
+        </div>
 
-<script>
-let correct, score=0, time=180, timer, settings;
-let records = JSON.parse(localStorage.getItem("records")) || [];
+        <!-- Ekran końcowy -->
+        <div class="end-screen" id="endScreen">
+            <div class="end-title">🎮 Koniec gry!</div>
+            <div class="end-reason" id="endReason"></div>
+            
+            <div class="final-score" id="finalScore">0</div>
+            <div>punktów</div>
 
-const levels = {
-easy:{max:20,plus:5,minus:5},
-medium:{max:50,plus:10,minus:10},
-hard:{max:100,plus:20,minus:20}
-};
+            <div class="stats-summary">
+                <div>
+                    <span>✅ Poprawne odpowiedzi:</span>
+                    <span id="correctCount">0</span>
+                </div>
+                <div>
+                    <span>❌ Błędne odpowiedzi:</span>
+                    <span id="wrongCount">0</span>
+                </div>
+                <div>
+                    <span>🔥 Najdłuższa seria:</span>
+                    <span id="maxStreak">0</span>
+                </div>
+            </div>
 
-function startGame(){
-const name=player.value;
-if(!name){alert("Podaj imię");return;}
+            <div class="ranking" id="ranking">
+                <h3>🏆 TOP 3 Ranking</h3>
+                <div id="rankingList"></div>
+            </div>
 
-const checked=[...document.querySelectorAll("input[type=checkbox]:checked")];
-if(checked.length===0){alert("Wybierz działania");return;}
+            <button class="btn btn-restart" onclick="restartGame()">
+                🔄 Zagraj ponownie
+            </button>
+        </div>
+    </div>
 
-settings=levels[level.value];
-score=0;
-time=180;
+    <script>
+        // Stan gry
+        let gameState = {
+            playerName: '',
+            classLevel: 4,
+            operations: [],
+            timeLeft: 180,
+            points: 0,
+            streak: 0,
+            maxStreak: 0,
+            correctAnswers: 0,
+            wrongAnswers: 0,
+            currentQuestion: null,
+            currentAnswer: null,
+            timerInterval: null
+        };
 
-update();
-nextQuestion();
+        // Inicjalizacja
+        document.getElementById('answerInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
 
-clearInterval(timer);
-timer=setInterval(()=>{
-time--;
-update();
-if(time<=0 || score<0) endGame();
-},1000);
-}
+        // Sprawdzanie czy można rozpocząć grę
+        function updateStartButton() {
+            const checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]');
+            const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+            const nameInput = document.getElementById('playerName').value.trim();
+            document.getElementById('startBtn').disabled = !anyChecked || !nameInput;
+        }
 
-function nextQuestion(){
-const ops=[...document.querySelectorAll("input[type=checkbox]:checked")].map(o=>o.value);
-const mode=ops[Math.floor(Math.random()*ops.length)];
-let a=rand(settings.max), b=rand(settings.max);
+        document.querySelectorAll('.checkbox-group input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', updateStartButton);
+        });
 
-if(mode==="add"){correct=a+b; show(`${a}+${b}`);}
-if(mode==="sub"){correct=a-b; show(`${a}-${b}`);}
-if(mode==="mul"){correct=a*b; show(`${a}×${b}`);}
-if(mode==="div"){correct=a; show(`${a*b}÷${b}`);}
-if(mode==="frac"){
-let n1=rand(5),d1=rand(5),n2=rand(5),d2=rand(5);
-correct=(n1*d2+n2*d1)/(d1*d2);
-show(`${n1}/${d1} + ${n2}/${d2}`);
-}
-if(mode==="pow"){
-let p=rand(3)+1;
-correct=Math.pow(a,p);
-show(`${a}^${p}`);
-}
-if(mode==="sqrt"){
-let s=rand(10);
-correct=s;
-show(`√${s*s}`);
-}
+        document.getElementById('playerName').addEventListener('input', updateStartButton);
+        updateStartButton();
 
-answer.value="";
-answer.focus();
-}
+        // Rozpoczęcie gry
+        function startGame() {
+            // Pobierz ustawienia
+            gameState.playerName = document.getElementById('playerName').value.trim() || 'Gracz';
+            gameState.classLevel = parseInt(document.getElementById('classLevel').value);
+            gameState.operations = [];
+            
+            if (document.getElementById('addition').checked) gameState.operations.push('addition');
+            if (document.getElementById('subtraction').checked) gameState.operations.push('subtraction');
+            if (document.getElementById('multiplication').checked) gameState.operations.push('multiplication');
+            if (document.getElementById('division').checked) gameState.operations.push('division');
+            if (document.getElementById('fractions').checked) gameState.operations.push('fractions');
+            if (document.getElementById('powers').checked) gameState.operations.push('powers');
+            if (document.getElementById('roots').checked) gameState.operations.push('roots');
 
-answer.addEventListener("keyup",e=>{
-if(e.key==="Enter"){
-let ans=Number(e.target.value);
-if(Math.abs(ans-correct)<0.01){
-score+=settings.plus;
-}else{
-score-=settings.minus;
-}
-update();
-nextQuestion();
-}
-});
+            // Reset stanu
+            gameState.timeLeft = 180;
+            gameState.points = 0;
+            gameState.streak = 0;
+            gameState.maxStreak = 0;
+            gameState.correctAnswers = 0;
+            gameState.wrongAnswers = 0;
 
-function endGame(){
-clearInterval(timer);
-question.textContent="⛔ Koniec gry";
+            // Pokaż ekran gry
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            document.getElementById('endScreen').style.display = 'none';
 
-records.push({
-name:player.value,
-score:score,
-date:new Date().toLocaleDateString()
-});
+            // Rozpocznij timer
+            updateDisplay();
+            generateQuestion();
+            gameState.timerInterval = setInterval(tick, 1000);
+            document.getElementById('answerInput').focus();
+        }
 
-records.sort((a,b)=>b.score-a.score);
-records=records.slice(0,3);
-localStorage.setItem("records",JSON.stringify(records));
-showRecords();
-}
+        // Tick timera
+        function tick() {
+            gameState.timeLeft--;
+            updateDisplay();
 
-function showRecords(){
-recordsEl.innerHTML="";
-records.forEach((r,i)=>{
-let medal=i===0?"🥇 ":"";
-recordsEl.innerHTML+=`<li>${medal}${r.name} – ${r.score} pkt (${r.date})</li>`;
-});
-}
+            if (gameState.timeLeft <= 0) {
+                endGame('⏰ Czas minął!');
+            }
+        }
 
-function show(txt){question.textContent=txt+" = ?";}
-function update(){timeEl.textContent=time;scoreEl.textContent=score;}
-function rand(max){return Math.floor(Math.random()*max)+1;}
+        // Aktualizacja wyświetlania
+        function updateDisplay() {
+            const minutes = Math.floor(gameState.timeLeft / 60);
+            const seconds = gameState.timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
-const question=document.getElementById("question");
-const answer=document.getElementById("answer");
-const timeEl=document.getElementById("time");
-const scoreEl=document.getElementById("score");
-const recordsEl=document.getElementById("records");
+            const pointsElement = document.getElementById('points');
+            pointsElement.textContent = gameState.points;
+            pointsElement.classList.toggle('negative', gameState.points < 0);
 
-showRecords();
-</script>
+            document.getElementById('streak').textContent = gameState.streak;
 
-</body>
-</html>
+            // Progress bar
+            const progress = (gameState.timeLeft / 180) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+
+            // Streak badge
+            const streakBadge = document.getElementById('streakBadge');
+            if (gameState.streak >= 3) {
+                streakBadge.style.display = 'block';
+                document.getElementById('streakCount').textContent = gameState.streak;
+            } else {
+                streakBadge.style.display = 'none';
+            }
+        }
+
+        // Generowanie pytania
+        function generateQuestion() {
+            const level = gameState.classLevel;
+            const operation = gameState.operations[Math.floor(Math.random() * gameState.operations.length)];
+            
+            let question, answer, operationType;
+
+            switch (operation) {
+                case 'addition':
+                    const addResult = generateAddition(level);
+                    question = addResult.question;
+                    answer = addResult.answer;
+                    operationType = '➕ Dodawanie';
+                    break;
+                case 'subtraction':
+                    const subResult = generateSubtraction(level);
+                    question = subResult.question;
+                    answer = subResult.answer;
+                    operationType = '➖ Odejmowanie';
+                    break;
+                case 'multiplication':
+                    const mulResult = generateMultiplication(level);
+                    question = mulResult.question;
+                    answer = mulResult.answer;
+                    operationType = '✖️ Mnożenie';
+                    break;
+                case 'division':
+                    const divResult = generateDivision(level);
+                    question = divResult.question;
+                    answer = divResult.answer;
+                    operationType = '➗ Dzielenie';
+                    break;
+                case 'fractions':
+                    const fracResult = generateFraction(level);
+                    question = fracResult.question;
+                    answer = fracResult.answer;
+                    operationType = '🧮 Ułamki';
+                    break;
+                case 'powers':
+                    const powResult = generatePower(level);
+                    question = powResult.question;
+                    answer = powResult.answer;
+                    operationType = '🔺 Potęgi';
+                    break;
+                case 'roots':
+                    const rootResult = generateRoot(level);
+                    question = rootResult.question;
+                    answer = rootResult.answer;
+                    operationType = '√ Pierwiastki';
+                    break;
+            }
+
+            gameState.currentQuestion = question;
+            gameState.currentAnswer = answer;
+
+            document.getElementById('question').textContent = question;
+            document.getElementById('operationType').textContent = operationType;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('feedback').textContent = '';
+        }
+
+        // Generatory pytań
+        function generateAddition(level) {
+            let max = level <= 2 ? 20 : level <= 4 ? 100 : level <= 6 ? 1000 : 10000;
+            let a = Math.floor(Math.random() * max);
+            let b = Math.floor(Math.random() * max);
+            return { question: `${a} + ${b} = ?`, answer: a + b };
+        }
+
+        function generateSubtraction(level) {
+            let max = level <= 2 ? 20 : level <= 4 ? 100 : level <= 6 ? 1000 : 10000;
+            let a = Math.floor(Math.random() * max);
+            let b = Math.floor(Math.random() * max);
+            if (a < b) [a, b] = [b, a]; // Wynik nieujemny
+            return { question: `${a} - ${b} = ?`, answer: a - b };
+        }
+
+        function generateMultiplication(level) {
+            let max = level <= 3 ? 10 : level <= 5 ? 12 : level <= 7 ? 20 : 30;
+            let a = Math.floor(Math.random() * max) + 1;
+            let b = Math.floor(Math.random() * max) + 1;
+            return { question: `${a} × ${b} = ?`, answer: a * b };
+        }
+
+        function generateDivision(level) {
+            let max = level <= 3 ? 10 : level <= 5 ? 12 : level <= 7 ? 20 : 30;
+            let b = Math.floor(Math.random() * max) + 1;
+            let answer = Math.floor(Math.random() * max) + 1;
+            let a = b * answer;
+            return { question: `${a} ÷ ${b} = ?`, answer: answer };
+        }
+
+        function generateFraction(level) {
+            // Proste ułamki - dodawanie/odejmowanie z tym samym mianownikiem
+            let denominator = [2, 3, 4, 5, 6, 8, 10][Math.floor(Math.random() * 7)];
+            let num1 = Math.floor(Math.random() * (denominator - 1)) + 1;
+            let num2 = Math.floor(Math.random() * (denominator - num1)) + 1;
+            
+            if (Math.random() > 0.5) {
+                // Dodawanie
+                return {
+                    question: `${num1}/${denominator} + ${num2}/${denominator} = ?/${denominator}`,
+                    answer: num1 + num2
+                };
+            } else {
+                // Odejmowanie
+                if (num1 < num2) [num1, num2] = [num2, num1];
+                return {
+                    question: `${num1}/${denominator} - ${num2}/${denominator} = ?/${denominator}`,
+                    answer: num1 - num2
+                };
+            }
+        }
+
+        function generatePower(level) {
+            let bases, exponents;
+            if (level <= 4) {
+                bases = [2, 3, 4, 5];
+                exponents = [2];
+            } else if (level <= 6) {
+                bases = [2, 3, 4, 5, 6, 7, 8, 9, 10];
+                exponents = [2, 3];
+            } else {
+                bases = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+                exponents = [2, 3, 4];
+            }
+            
+            let base = bases[Math.floor(Math.random() * bases.length)];
+            let exp = exponents[Math.floor(Math.random() * exponents.length)];
+            
+            // Ogranicz do rozsądnych wartości
+            if (base > 4 && exp > 2) exp = 2;
+            if (base > 10 && exp > 2) exp = 2;
+            
+            const superscripts = ['⁰', '¹', '²', '³', '⁴', '⁵'];
+            return {
+                question: `${base}${superscripts[exp]} = ?`,
+                answer: Math.pow(base, exp)
+            };
+        }
+
+        function generateRoot(level) {
+            let perfectSquares;
+            if (level <= 4) {
+                perfectSquares = [1, 4, 9, 16, 25];
+            } else if (level <= 6) {
+                perfectSquares = [1, 4, 9, 16, 25, 36, 49, 64, 81, 100];
+            } else {
+                perfectSquares = [1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225];
+            }
+            
+            let square = perfectSquares[Math.floor(Math.random() * perfectSquares.length)];
+            return {
+                question: `√${square} = ?`,
+                answer: Math.sqrt(square)
+            };
+        }
+
+        // Sprawdzenie odpowiedzi
+        function checkAnswer() {
+            const userAnswer = document.getElementById('answerInput').value.trim();
+            
+            if (userAnswer === '') return;
+
+            const isCorrect = parseFloat(userAnswer) === gameState.currentAnswer;
+            const feedback = document.getElementById('feedback');
+            const questionBox = document.querySelector('.question-box');
+
+            if (isCorrect) {
+                // Poprawna odpowiedź
+                gameState.streak++;
+                gameState.maxStreak = Math.max(gameState.maxStreak, gameState.streak);
+                gameState.correctAnswers++;
+                
+                // Punkty z bonusem za serię
+                let pointsEarned = 10 + (gameState.streak >= 3 ? gameState.streak * 2 : 0);
+                gameState.points += pointsEarned;
+
+                feedback.textContent = `✅ Brawo! +${pointsEarned} punktów!`;
+                feedback.className = 'feedback correct';
+                questionBox.classList.add('pulse');
+            } else {
+                // Błędna odpowiedź
+                gameState.streak = 0;
+                gameState.wrongAnswers++;
+                gameState.points -= 5;
+
+                feedback.textContent = `❌ Źle! Poprawna odpowiedź: ${gameState.currentAnswer}`;
+                feedback.className = 'feedback wrong';
+                questionBox.classList.add('shake');
+
+                // Sprawdź czy punkty poniżej 0
+                if (gameState.points < 0) {
+                    setTimeout(() => endGame('❌ Punkty spadły poniżej 0!'), 1000);
+                    return;
+                }
+            }
+
+            updateDisplay();
+
+            // Usuń animację
+            setTimeout(() => {
+                questionBox.classList.remove('pulse', 'shake');
+            }, 500);
+
+            // Następne pytanie
+            setTimeout(() => {
+                generateQuestion();
+                document.getElementById('answerInput').focus();
+            }, 1200);
+        }
+
+        // Koniec gry
+        function endGame(reason) {
+            clearInterval(gameState.timerInterval);
+
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('endScreen').style.display = 'block';
+
+            document.getElementById('endReason').textContent = reason;
+            document.getElementById('finalScore').textContent = gameState.points;
+            document.getElementById('correctCount').textContent = gameState.correctAnswers;
+            document.getElementById('wrongCount').textContent = gameState.wrongAnswers;
+            document.getElementById('maxStreak').textContent = gameState.maxStreak;
+
+            // Zapisz wynik do rankingu
+            saveScore();
+            displayRanking();
+        }
+
+        // Zapis wyniku
+        function saveScore() {
+            const scores = JSON.parse(localStorage.getItem('mathGameScores') || '[]');
+            
