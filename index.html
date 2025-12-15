@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Szkolna Gra Matematyczna</title>
+<style>
+body { font-family: Arial; text-align: center; }
+input, select { font-size: 18px; margin: 5px; }
+button { font-size: 18px; }
+label { margin-right: 10px; }
+</style>
+</head>
+<body>
+
+<h1>📚 Szkolna Gra Matematyczna (1–8)</h1>
+
+<input id="player" placeholder="Imię ucznia">
+
+<br><br>
+
+<select id="level">
+<option value="easy">Klasy 1–3</option>
+<option value="medium">Klasy 4–6</option>
+<option value="hard">Klasy 7–8</option>
+</select>
+
+<h3>✔️ Wybierz działania</h3>
+<label><input type="checkbox" value="add" checked> ➕</label>
+<label><input type="checkbox" value="sub"> ➖</label>
+<label><input type="checkbox" value="mul"> ✖️</label>
+<label><input type="checkbox" value="div"> ➗</label>
+<label><input type="checkbox" value="frac"> 🧮</label>
+<label><input type="checkbox" value="pow"> 🔺</label>
+<label><input type="checkbox" value="sqrt"> √</label>
+
+<h2 id="question">Kliknij START</h2>
+
+<input id="answer">
+
+<br><br>
+<button onclick="startGame()">START</button>
+
+<p>⏱️ Czas: <span id="time">180</span> s</p>
+<p>⭐ Punkty: <span id="score">0</span></p>
+
+<h3>🏆 TOP 3</h3>
+<ol id="records"></ol>
+
+<script>
+let correct, score=0, time=180, timer, settings;
+let records = JSON.parse(localStorage.getItem("records")) || [];
+
+const levels = {
+easy:{max:20,plus:5,minus:5},
+medium:{max:50,plus:10,minus:10},
+hard:{max:100,plus:20,minus:20}
+};
+
+function startGame(){
+const name=player.value;
+if(!name){alert("Podaj imię");return;}
+
+const checked=[...document.querySelectorAll("input[type=checkbox]:checked")];
+if(checked.length===0){alert("Wybierz działania");return;}
+
+settings=levels[level.value];
+score=0;
+time=180;
+
+update();
+nextQuestion();
+
+clearInterval(timer);
+timer=setInterval(()=>{
+time--;
+update();
+if(time<=0 || score<0) endGame();
+},1000);
+}
+
+function nextQuestion(){
+const ops=[...document.querySelectorAll("input[type=checkbox]:checked")].map(o=>o.value);
+const mode=ops[Math.floor(Math.random()*ops.length)];
+let a=rand(settings.max), b=rand(settings.max);
+
+if(mode==="add"){correct=a+b; show(`${a}+${b}`);}
+if(mode==="sub"){correct=a-b; show(`${a}-${b}`);}
+if(mode==="mul"){correct=a*b; show(`${a}×${b}`);}
+if(mode==="div"){correct=a; show(`${a*b}÷${b}`);}
+if(mode==="frac"){
+let n1=rand(5),d1=rand(5),n2=rand(5),d2=rand(5);
+correct=(n1*d2+n2*d1)/(d1*d2);
+show(`${n1}/${d1} + ${n2}/${d2}`);
+}
+if(mode==="pow"){
+let p=rand(3)+1;
+correct=Math.pow(a,p);
+show(`${a}^${p}`);
+}
+if(mode==="sqrt"){
+let s=rand(10);
+correct=s;
+show(`√${s*s}`);
+}
+
+answer.value="";
+answer.focus();
+}
+
+answer.addEventListener("keyup",e=>{
+if(e.key==="Enter"){
+let ans=Number(e.target.value);
+if(Math.abs(ans-correct)<0.01){
+score+=settings.plus;
+}else{
+score-=settings.minus;
+}
+update();
+nextQuestion();
+}
+});
+
+function endGame(){
+clearInterval(timer);
+question.textContent="⛔ Koniec gry";
+
+records.push({
+name:player.value,
+score:score,
+date:new Date().toLocaleDateString()
+});
+
+records.sort((a,b)=>b.score-a.score);
+records=records.slice(0,3);
+localStorage.setItem("records",JSON.stringify(records));
+showRecords();
+}
+
+function showRecords(){
+recordsEl.innerHTML="";
+records.forEach((r,i)=>{
+let medal=i===0?"🥇 ":"";
+recordsEl.innerHTML+=`<li>${medal}${r.name} – ${r.score} pkt (${r.date})</li>`;
+});
+}
+
+function show(txt){question.textContent=txt+" = ?";}
+function update(){timeEl.textContent=time;scoreEl.textContent=score;}
+function rand(max){return Math.floor(Math.random()*max)+1;}
+
+const question=document.getElementById("question");
+const answer=document.getElementById("answer");
+const timeEl=document.getElementById("time");
+const scoreEl=document.getElementById("score");
+const recordsEl=document.getElementById("records");
+
+showRecords();
+</script>
+
+</body>
+</html>
