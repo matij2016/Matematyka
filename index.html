@@ -8,4 +8,176 @@
         .box { background: white; padding: 20px; border-radius: 10px; max-width: 400px; margin: 0 auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         button { padding: 15px; width: 100%; margin: 10px 0; cursor: pointer; background: #007bff; color: white; border: none; font-size: 18px; border-radius: 5px; }
         button:hover { background: #0056b3; }
-        input, select { padding: 10px; width: 
+        input, select { padding: 10px; width: 100%; margin: 5px 0; box-sizing: border-box; }
+        .hidden { display: none; }
+        .big { font-size: 24px; font-weight: bold; margin: 15px 0; }
+        .stat-row { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px; }
+        label { display: block; text-align: left; padding: 5px; background: #f9f9f9; margin: 2px 0; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <!-- EKRAN START -->
+        <div id="view-start">
+            <h1>🧮 Gra Matematyczna</h1>
+            <input type="text" id="pName" placeholder="Twoje imię" value="Gracz">
+            
+            <p>Wybierz klasę:</p>
+            <select id="pClass">
+                <option value="1">Klasa 1 (do 20)</option>
+                <option value="2">Klasa 2 (do 100)</option>
+                <option value="3">Klasa 3 (Mnożenie do 50)</option>
+                <option value="4" selected>Klasa 4 (Wszystko)</option>
+            </select>
+
+            <p>Działania:</p>
+            <label><input type="checkbox" id="cAdd" checked> Dodawanie</label>
+            <label><input type="checkbox" id="cSub" checked> Odejmowanie</label>
+            <label><input type="checkbox" id="cMul"> Mnożenie</label>
+            <label><input type="checkbox" id="cDiv"> Dzielenie</label>
+
+            <!-- TU JEST ZMIANA: onclick wpisany bezpośrednio -->
+            <button onclick="uruchomGre()">START</button>
+        </div>
+
+        <!-- EKRAN GRY -->
+        <div id="view-game" class="hidden">
+            <div class="stat-row">
+                <span>⏰ <span id="sTime">180</span>s</span>
+                <span>⭐ <span id="sScore">0</span></span>
+            </div>
+            
+            <div id="questionBox" class="big">2 + 2 = ?</div>
+            <div id="msgBox" style="height: 20px; font-weight:bold;"></div>
+
+            <input type="number" id="ansInput" placeholder="Wynik">
+            <button onclick="sprawdz()">SPRAWDŹ</button>
+        </div>
+
+        <!-- EKRAN KONIEC -->
+        <div id="view-end" class="hidden">
+            <h2>Koniec Gry!</h2>
+            <p id="endReason">...</p>
+            <div class="big">Wynik: <span id="finalScore">0</span></div>
+            <button onclick="location.reload()">ZAGRAJ PONOWNIE</button>
+        </div>
+    </div>
+
+    <script>
+        // Zmienne globalne
+        var czas = 180;
+        var punkty = 0;
+        var aktualnyWynik = 0;
+        var interwal = null;
+        var operacje = [];
+
+        function uruchomGre() {
+            // 1. Sprawdź checkboxy
+            operacje = [];
+            if(document.getElementById('cAdd').checked) operacje.push('+');
+            if(document.getElementById('cSub').checked) operacje.push('-');
+            if(document.getElementById('cMul').checked) operacje.push('*');
+            if(document.getElementById('cDiv').checked) operacje.push('/');
+
+            if(operacje.length === 0) {
+                alert("Zaznacz chociaż jedno działanie!");
+                return;
+            }
+
+            // 2. Przełącz widok
+            document.getElementById('view-start').style.display = 'none';
+            document.getElementById('view-game').style.display = 'block';
+
+            // 3. Start licznika
+            interwal = setInterval(function() {
+                czas--;
+                document.getElementById('sTime').innerText = czas;
+                if(czas <= 0) koniec("Czas minął!");
+            }, 1000);
+
+            // 4. Pierwsze pytanie
+            losujPytanie();
+        }
+
+        function losujPytanie() {
+            document.getElementById('ansInput').value = '';
+            document.getElementById('ansInput').focus();
+
+            var klasa = parseInt(document.getElementById('pClass').value);
+            var op = operacje[Math.floor(Math.random() * operacje.length)];
+            var a, b;
+            var max = klasa * 20; 
+
+            if(op === '+') {
+                a = Math.floor(Math.random() * max);
+                b = Math.floor(Math.random() * max);
+                aktualnyWynik = a + b;
+                document.getElementById('questionBox').innerText = a + " + " + b + " = ?";
+            }
+            else if(op === '-') {
+                a = Math.floor(Math.random() * max);
+                b = Math.floor(Math.random() * max);
+                if(a < b) { var temp = a; a = b; b = temp; } // Żeby nie było ujemnych
+                aktualnyWynik = a - b;
+                document.getElementById('questionBox').innerText = a + " - " + b + " = ?";
+            }
+            else if(op === '*') {
+                var m = (klasa < 3) ? 5 : 12;
+                a = Math.floor(Math.random() * m) + 1;
+                b = Math.floor(Math.random() * m) + 1;
+                aktualnyWynik = a * b;
+                document.getElementById('questionBox').innerText = a + " · " + b + " = ?";
+            }
+            else if(op === '/') {
+                var m = (klasa < 3) ? 5 : 12;
+                b = Math.floor(Math.random() * m) + 1;
+                var wynik = Math.floor(Math.random() * m) + 1;
+                a = b * wynik;
+                aktualnyWynik = wynik;
+                document.getElementById('questionBox').innerText = a + " : " + b + " = ?";
+            }
+        }
+
+        function sprawdz() {
+            var input = document.getElementById('ansInput').value;
+            if(input === "") return;
+
+            var userOdp = parseInt(input);
+            var msg = document.getElementById('msgBox');
+
+            if(userOdp === aktualnyWynik) {
+                punkty += 10;
+                msg.innerText = "DOBRZE! :)";
+                msg.style.color = "green";
+                setTimeout(losujPytanie, 500);
+            } else {
+                punkty -= 5;
+                msg.innerText = "ŹLE! Wynik to: " + aktualnyWynik;
+                msg.style.color = "red";
+                if(punkty < 0) {
+                    koniec("Punkty poniżej zera!");
+                    return;
+                }
+                setTimeout(losujPytanie, 1500);
+            }
+            document.getElementById('sScore').innerText = punkty;
+        }
+
+        function koniec(powod) {
+            clearInterval(interwal);
+            document.getElementById('view-game').style.display = 'none';
+            document.getElementById('view-end').style.display = 'block';
+            document.getElementById('endReason').innerText = powod;
+            document.getElementById('finalScore').innerText = punkty;
+        }
+        
+        // Obsługa entera
+        document.getElementById('ansInput').addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                sprawdz();
+            }
+        });
+    </script>
+</body>
+</html>
