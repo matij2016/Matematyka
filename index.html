@@ -2,182 +2,337 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Gra Matematyczna</title>
+    <title>Matematyczny Mistrz - Klasy 1-8</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #eee; text-align: center; padding: 20px; }
-        .box { background: white; padding: 20px; border-radius: 10px; max-width: 400px; margin: 0 auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        button { padding: 15px; width: 100%; margin: 10px 0; cursor: pointer; background: #007bff; color: white; border: none; font-size: 18px; border-radius: 5px; }
-        button:hover { background: #0056b3; }
-        input, select { padding: 10px; width: 100%; margin: 5px 0; box-sizing: border-box; }
-        .hidden { display: none; }
-        .big { font-size: 24px; font-weight: bold; margin: 15px 0; }
-        .stat-row { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px; }
-        label { display: block; text-align: left; padding: 5px; background: #f9f9f9; margin: 2px 0; cursor: pointer; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h1 { color: #2c3e50; }
+        .stats { display: flex; justify-content: space-around; font-size: 18px; margin-bottom: 20px; }
+        #czas { color: #e74c3c; font-weight: bold; }
+        #punkty { color: #27ae60; font-weight: bold; }
+        
+        input, select, button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            cursor: pointer;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            transition: 0.3s;
+        }
+        button:hover { background-color: #2980b9; }
+        
+        #ekran-gry, #ekran-koncowy { display: none; }
+        
+        #pytanie {
+            font-size: 32px;
+            margin: 20px 0;
+            color: #34495e;
+        }
+        
+        .top-scores {
+            margin-top: 30px;
+            text-align: left;
+            background: #fafafa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .top-scores li { margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
-    <div class="box">
-        <!-- EKRAN START -->
-        <div id="view-start">
-            <h1>🧮 Gra Matematyczna</h1>
-            <input type="text" id="pName" placeholder="Twoje imię" value="Gracz">
-            
-            <p>Wybierz klasę:</p>
-            <select id="pClass">
-                <option value="1">Klasa 1 (do 20)</option>
-                <option value="2">Klasa 2 (do 100)</option>
-                <option value="3">Klasa 3 (Mnożenie do 50)</option>
-                <option value="4" selected>Klasa 4 (Wszystko)</option>
-            </select>
+<div class="container">
+    <!-- EKRAN STARTOWY -->
+    <div id="ekran-startowy">
+        <h1>Matematyka: Klasy 1-8</h1>
+        
+        <input type="text" id="nick" placeholder="Twój nick" value="Gracz">
+        <br><br>
+        <label>Wybierz poziom (klasę):</label>
+        <select id="poziom">
+            <option value="1">Klasa 1 (Dodawanie/Odejmowanie do 20)</option>
+            <option value="2">Klasa 2 (Dodawanie/Odejmowanie do 100)</option>
+            <option value="3">Klasa 3 (Tabliczka mnożenia)</option>
+            <option value="4">Klasa 4 (Dzielenie i duże liczby)</option>
+            <option value="5">Klasa 5 (Liczby ujemne)</option>
+            <option value="6">Klasa 6 (Ułamki dziesiętne)</option>
+            <option value="7">Klasa 7 (Potęgi i Pierwiastki)</option>
+            <option value="8">Klasa 8 (Procenty i mix wszystkiego)</option>
+        </select>
+        <br><br>
+        <!-- PRZYCISK START - Tu był Twój problem -->
+        <button onclick="uruchomGre()" style="padding: 15px 30px; font-size: 20px; background-color: #2ecc71;">START</button>
 
-            <p>Działania:</p>
-            <label><input type="checkbox" id="cAdd" checked> Dodawanie</label>
-            <label><input type="checkbox" id="cSub" checked> Odejmowanie</label>
-            <label><input type="checkbox" id="cMul"> Mnożenie</label>
-            <label><input type="checkbox" id="cDiv"> Dzielenie</label>
-
-            <!-- TU JEST ZMIANA: onclick wpisany bezpośrednio -->
-            <button onclick="uruchomGre()">START</button>
-        </div>
-
-        <!-- EKRAN GRY -->
-        <div id="view-game" class="hidden">
-            <div class="stat-row">
-                <span>⏰ <span id="sTime">180</span>s</span>
-                <span>⭐ <span id="sScore">0</span></span>
-            </div>
-            
-            <div id="questionBox" class="big">2 + 2 = ?</div>
-            <div id="msgBox" style="height: 20px; font-weight:bold;"></div>
-
-            <input type="number" id="ansInput" placeholder="Wynik">
-            <button onclick="sprawdz()">SPRAWDŹ</button>
-        </div>
-
-        <!-- EKRAN KONIEC -->
-        <div id="view-end" class="hidden">
-            <h2>Koniec Gry!</h2>
-            <p id="endReason">...</p>
-            <div class="big">Wynik: <span id="finalScore">0</span></div>
-            <button onclick="location.reload()">ZAGRAJ PONOWNIE</button>
+        <div class="top-scores">
+            <h3>🏆 TOP 3 Najlepsi Gracze:</h3>
+            <ol id="lista-wynikow">
+                <li>Brak wyników</li>
+            </ol>
         </div>
     </div>
 
-    <script>
-        // Zmienne globalne
-        var czas = 180;
-        var punkty = 0;
-        var aktualnyWynik = 0;
-        var interwal = null;
-        var operacje = [];
+    <!-- EKRAN GRY -->
+    <div id="ekran-gry">
+        <div class="stats">
+            <span>Czas: <span id="czas">180</span>s</span>
+            <span>Punkty: <span id="punkty">0</span></span>
+        </div>
+        
+        <div id="pytanie">Ładowanie...</div>
+        
+        <input type="number" id="odpowiedz" placeholder="Wynik" step="0.01">
+        <button onclick="sprawdz()">Sprawdź</button>
+        <p id="komunikat" style="height: 20px;"></p>
+    </div>
+</div>
 
-        function uruchomGre() {
-            // 1. Sprawdź checkboxy
-            operacje = [];
-            if(document.getElementById('cAdd').checked) operacje.push('+');
-            if(document.getElementById('cSub').checked) operacje.push('-');
-            if(document.getElementById('cMul').checked) operacje.push('*');
-            if(document.getElementById('cDiv').checked) operacje.push('/');
+<script>
+    // ZMIENNE GRY
+    let punkty = 0;
+    let czas = 180;
+    let timerInterwal;
+    let poprawnyWynik = 0;
+    let wybranyPoziom = 1;
+    let nickGracza = "";
 
-            if(operacje.length === 0) {
-                alert("Zaznacz chociaż jedno działanie!");
-                return;
-            }
+    // Ładowanie rankingu przy starcie strony
+    zaladujRanking();
 
-            // 2. Przełącz widok
-            document.getElementById('view-start').style.display = 'none';
-            document.getElementById('view-game').style.display = 'block';
+    // --- FUNKCJA STARTUJĄCA GRĘ ---
+    function uruchomGre() {
+        nickGracza = document.getElementById("nick").value || "Anonim";
+        wybranyPoziom = parseInt(document.getElementById("poziom").value);
+        
+        // Reset zmiennych
+        punkty = 0;
+        czas = 180; // 3 minuty
+        document.getElementById("punkty").innerText = punkty;
+        document.getElementById("czas").innerText = czas;
+        document.getElementById("komunikat").innerText = "";
+        document.getElementById("odpowiedz").value = "";
 
-            // 3. Start licznika
-            interwal = setInterval(function() {
-                czas--;
-                document.getElementById('sTime').innerText = czas;
-                if(czas <= 0) koniec("Czas minął!");
-            }, 1000);
+        // Przełączanie widoku
+        document.getElementById("ekran-startowy").style.display = "none";
+        document.getElementById("ekran-gry").style.display = "block";
 
-            // 4. Pierwsze pytanie
-            losujPytanie();
+        // Uruchomienie timera
+        clearInterval(timerInterwal);
+        timerInterwal = setInterval(odliczanie, 1000);
+
+        // Pierwsze pytanie
+        generujPytanie();
+    }
+
+    function odliczanie() {
+        czas--;
+        document.getElementById("czas").innerText = czas;
+        if (czas <= 0) {
+            koniecGry("Koniec czasu!");
         }
+    }
 
-        function losujPytanie() {
-            document.getElementById('ansInput').value = '';
-            document.getElementById('ansInput').focus();
+    // --- GENERATOR ZADAŃ MATEMATYCZNYCH ---
+    function generujPytanie() {
+        let a, b, operacja;
+        let symbol = "";
+        
+        // Logika poziomów (klas)
+        switch(wybranyPoziom) {
+            case 1: // Dodawanie/Odejmowanie do 20
+                a = losuj(1, 10);
+                b = losuj(1, 10);
+                operacja = Math.random() > 0.5 ? '+' : '-';
+                if(operacja === '-') { a = losuj(5, 20); b = losuj(1, a); } // Żeby nie było ujemnych w 1 klasie
+                break;
+                
+            case 2: // Dodawanie/Odejmowanie do 100
+                a = losuj(10, 50);
+                b = losuj(10, 50);
+                operacja = Math.random() > 0.5 ? '+' : '-';
+                break;
 
-            var klasa = parseInt(document.getElementById('pClass').value);
-            var op = operacje[Math.floor(Math.random() * operacje.length)];
-            var a, b;
-            var max = klasa * 20; 
+            case 3: // Tabliczka mnożenia
+                a = losuj(2, 9);
+                b = losuj(2, 9);
+                operacja = '*';
+                break;
 
-            if(op === '+') {
-                a = Math.floor(Math.random() * max);
-                b = Math.floor(Math.random() * max);
-                aktualnyWynik = a + b;
-                document.getElementById('questionBox').innerText = a + " + " + b + " = ?";
-            }
-            else if(op === '-') {
-                a = Math.floor(Math.random() * max);
-                b = Math.floor(Math.random() * max);
-                if(a < b) { var temp = a; a = b; b = temp; } // Żeby nie było ujemnych
-                aktualnyWynik = a - b;
-                document.getElementById('questionBox').innerText = a + " - " + b + " = ?";
-            }
-            else if(op === '*') {
-                var m = (klasa < 3) ? 5 : 12;
-                a = Math.floor(Math.random() * m) + 1;
-                b = Math.floor(Math.random() * m) + 1;
-                aktualnyWynik = a * b;
-                document.getElementById('questionBox').innerText = a + " · " + b + " = ?";
-            }
-            else if(op === '/') {
-                var m = (klasa < 3) ? 5 : 12;
-                b = Math.floor(Math.random() * m) + 1;
-                var wynik = Math.floor(Math.random() * m) + 1;
-                a = b * wynik;
-                aktualnyWynik = wynik;
-                document.getElementById('questionBox').innerText = a + " : " + b + " = ?";
-            }
-        }
+            case 4: // Dzielenie (wynik całkowity)
+                b = losuj(2, 9);
+                poprawnyWynik = losuj(2, 12); 
+                a = b * poprawnyWynik; // a jest wielokrotnością b
+                operacja = '/';
+                break;
 
-        function sprawdz() {
-            var input = document.getElementById('ansInput').value;
-            if(input === "") return;
+            case 5: // Liczby ujemne (dodawanie/odejmowanie)
+                a = losuj(-20, 20);
+                b = losuj(-20, 20);
+                operacja = Math.random() > 0.5 ? '+' : '-';
+                break;
+            
+            case 6: // Proste ułamki dziesiętne (np. 0.5 + 0.2)
+                a = Math.round(Math.random() * 100) / 10; // Np. 4.5
+                b = Math.round(Math.random() * 50) / 10;
+                operacja = Math.random() > 0.5 ? '+' : '-';
+                break;
 
-            var userOdp = parseInt(input);
-            var msg = document.getElementById('msgBox');
-
-            if(userOdp === aktualnyWynik) {
-                punkty += 10;
-                msg.innerText = "DOBRZE! :)";
-                msg.style.color = "green";
-                setTimeout(losujPytanie, 500);
-            } else {
-                punkty -= 5;
-                msg.innerText = "ŹLE! Wynik to: " + aktualnyWynik;
-                msg.style.color = "red";
-                if(punkty < 0) {
-                    koniec("Punkty poniżej zera!");
-                    return;
+            case 7: // Potęgi i Pierwiastki
+                if (Math.random() > 0.5) {
+                    // Potęgi
+                    a = losuj(2, 10);
+                    b = 2; // kwadraty
+                    operacja = '^';
+                } else {
+                    // Pierwiastki
+                    poprawnyWynik = losuj(2, 12);
+                    a = poprawnyWynik * poprawnyWynik;
+                    operacja = 'sqrt';
                 }
-                setTimeout(losujPytanie, 1500);
-            }
-            document.getElementById('sScore').innerText = punkty;
+                break;
+
+            case 8: // Procenty + mix
+                let typ = Math.random();
+                if (typ < 0.5) {
+                    // Procenty: np. 20% z 50
+                    a = losuj(1, 10) * 10; // 10%, 20%...
+                    b = losuj(1, 20) * 10; // liczby typu 50, 100
+                    operacja = '%';
+                } else {
+                    // Mnożenie dużych liczb
+                    a = losuj(11, 20);
+                    b = losuj(2, 9);
+                    operacja = '*';
+                }
+                break;
         }
 
-        function koniec(powod) {
-            clearInterval(interwal);
-            document.getElementById('view-game').style.display = 'none';
-            document.getElementById('view-end').style.display = 'block';
-            document.getElementById('endReason').innerText = powod;
-            document.getElementById('finalScore').innerText = punkty;
+        // Obliczanie wyniku i wyświetlanie pytania
+        if (operacja === '+') {
+            poprawnyWynik = parseFloat((a + b).toFixed(2));
+            symbol = `${a} + ${b}`;
+        } else if (operacja === '-') {
+            poprawnyWynik = parseFloat((a - b).toFixed(2));
+            symbol = `${a} - ${b}`;
+        } else if (operacja === '*') {
+            poprawnyWynik = parseFloat((a * b).toFixed(2));
+            symbol = `${a} · ${b}`;
+        } else if (operacja === '/') {
+            poprawnyWynik = a / b;
+            symbol = `${a} : ${b}`;
+        } else if (operacja === '^') {
+            poprawnyWynik = Math.pow(a, b);
+            symbol = `${a}²`;
+        } else if (operacja === 'sqrt') {
+            poprawnyWynik = Math.sqrt(a);
+            symbol = `√${a}`;
+        } else if (operacja === '%') {
+            poprawnyWynik = (a / 100) * b;
+            symbol = `${a}% z liczby ${b}`;
+        }
+
+        document.getElementById("pytanie").innerText = symbol + " = ?";
+        
+        // Fokus na pole tekstowe
+        let input = document.getElementById("odpowiedz");
+        input.value = "";
+        input.focus();
+        
+        // Obsługa klawisza Enter
+        input.onkeydown = function(e) {
+            if(e.key === "Enter") sprawdz();
+        };
+    }
+
+    function losuj(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // --- SPRAWDZANIE ODPOWIEDZI ---
+    function sprawdz() {
+        let graczOdp = parseFloat(document.getElementById("odpowiedz").value);
+        let komunikat = document.getElementById("komunikat");
+
+        if (isNaN(graczOdp)) return; // Ignoruj puste
+
+        if (Math.abs(graczOdp - poprawnyWynik) < 0.01) { // Tolerancja dla ułamków
+            punkty += 10;
+            komunikat.innerText = "Dobrze! (+10 pkt)";
+            komunikat.style.color = "green";
+        } else {
+            punkty -= 5;
+            komunikat.innerText = `Źle! Wynik to ${poprawnyWynik} (-5 pkt)`;
+            komunikat.style.color = "red";
         }
         
-        // Obsługa entera
-        document.getElementById('ansInput').addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                sprawdz();
-            }
-        });
-    </script>
+        document.getElementById("punkty").innerText = punkty;
+
+        // Przegrana przez punkty ujemne
+        if (punkty < 0) {
+            koniecGry("Przegrałeś! Masz ujemne punkty.");
+        } else {
+            // Generuj kolejne po chwili
+            setTimeout(generujPytanie, 1000);
+        }
+    }
+
+    // --- KONIEC GRY I RANKING ---
+    function koniecGry(powod) {
+        clearInterval(timerInterwal);
+        alert(`${powod} Twój wynik: ${punkty} pkt.`);
+        
+        zapiszWynik(nickGracza, punkty);
+        location.reload(); // Odśwież stronę
+    }
+
+    function zapiszWynik(imie, wynik) {
+        // Pobierz obecne wyniki z pamięci przeglądarki
+        let ranking = JSON.parse(localStorage.getItem('rankingMatematyczny')) || [];
+        
+        // Dodaj nowy wynik
+        ranking.push({ imie: imie, wynik: wynik, poziom: wybranyPoziom });
+        
+        // Posortuj od największego
+        ranking.sort((a, b) => b.wynik - a.wynik);
+        
+        // Zostaw tylko top 3
+        ranking = ranking.slice(0, 3);
+        
+        // Zapisz z powrotem
+        localStorage.setItem('rankingMatematyczny', JSON.stringify(ranking));
+    }
+
+    function zaladujRanking() {
+        let ranking = JSON.parse(localStorage.getItem('rankingMatematyczny')) || [];
+        let lista = document.getElementById("lista-wynikow");
+        
+        if (ranking.length > 0) {
+            lista.innerHTML = "";
+            ranking.forEach(rekord => {
+                let li = document.createElement("li");
+                li.innerText = `${rekord.imie}: ${rekord.wynik} pkt (Klasa ${rekord.poziom})`;
+                lista.appendChild(li);
+            });
+        }
+    }
+</script>
+
 </body>
 </html>
